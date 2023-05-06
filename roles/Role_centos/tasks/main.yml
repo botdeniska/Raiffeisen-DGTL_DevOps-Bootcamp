@@ -1,0 +1,18 @@
+---
+# tasks file for Role_centos
+
+- name: "Update and Upgrade all packages"
+  yum:
+    name: "*"
+    state: latest
+    update_only: yes
+    update_cache: yes
+    exclude: redis*
+  when:
+   - ansible_os_family == "RedHat"
+   - ansible_distribution == "CentOS"
+  notify:
+    - restart server
+
+- name: "Delete old linux with installed yum-utils"
+  shell: "package-cleanup --oldkernels --count=2"

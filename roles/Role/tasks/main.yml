@@ -1,0 +1,22 @@
+---
+- name: "Hold redis"
+  become: yes
+  when:
+   - ansible_facts['distribution'] == "Ubuntu"
+  shell: apt-mark hold redis*
+  register: hold
+  changed_when: hold.stdout != 'HOLDED'
+
+- name: "Update apt repo and cache on all boxes"
+  apt: update_cache=yes force_apt_get=yes
+
+- name: "Upgrade all packages on servers"
+  apt: upgrade=dist force_apt_get=yes
+  notify:
+    - restart server
+
+- name: "Delete old linux"
+  shell: apt-get purge $(dpkg -l 'linux-*' | sed '/^ii/!d;/'"$(uname -r | sed "s/\(.*\)-\([^0-9]\+\)/\1/")"'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d' | head -n -1)
+
+- name: "Autoremove and autoclean"
+  apt: autoremove=yes autoclean=yes

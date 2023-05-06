@@ -1,0 +1,9 @@
+---
+- hosts: servers
+  roles:
+    - Role
+
+- hosts: server_centos
+  roles:
+    - Role_centos
+
